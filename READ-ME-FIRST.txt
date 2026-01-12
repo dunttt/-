@@ -1,0 +1,42 @@
+
+
+✅ 已解决所有 Windows 兼容性问题（v2.0-fixed）
+  - 文件名无乱码（移除emoji，关键文件英文化）
+  - BAT文件可直接运行（已转换为CRLF格式）
+  - 自动定位目录（无论从哪里运行都能找到文件）
+
+📦 核心文件：
+  - setup.bat          （一键配置环境）
+  - start.bat          （一键启动系统）
+  - stop.bat           （停止服务）
+  - START-HERE.txt     （快速入门指南）
+
+📚 文档说明：
+  本项目包含中文文档（使用UTF-8编码）。
+  如果在Windows记事本中打开乱码，请：
+  
+  1. 使用 Visual Studio Code 打开
+  2. 或使用 Notepad++ 打开
+  3. 或使用 Windows 11 自带记事本（已支持UTF-8）
+
+🚀 快速开始：
+  1. 双击运行 setup.bat
+  2. 双击运行 start.bat
+  3. 浏览器访问 http://127.0.0.1:5001
+
+📖 详细教程：
+  - Windows快速入门.md
+  - Windows用户指南.md
+  - README-Windows.md
+
+👤 测试账号：
+  管理员：admin / admin123
+  创作者：作家小明 / creator123
+  读者：读者小红 / reader123
+
+⚙️ 环境要求：
+  - Windows 10/11
+  - Python 3.9+
+  - MongoDB 6.0+
+
+

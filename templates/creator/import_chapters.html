@@ -1,0 +1,32 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}导入章节 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">📥 导入章节：{{ novel.title }}</h1>
+
+<div class="card">
+    <div class="card-header">📂 从文件导入</div>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">选择文件（支持 TXT / PDF 格式）</label>
+            <input type="file" id="file" name="file" class="form-control" accept=".txt,.pdf" required style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem;">
+        </div>
+        
+        <div style="padding: 1.5rem; background: #faf8f3; border-radius: 8px; border: 2px solid #f0e6d6; margin-bottom: 1.5rem;">
+            <h4 style="color: #5a4a3a; margin-bottom: 1rem; font-size: 1.1rem;">📋 导入说明：</h4>
+            <ul style="color: #666; line-height: 2; padding-left: 1.5rem;">
+                <li>✅ 支持 TXT 和 PDF 格式文件</li>
+                <li>🔍 系统会自动识别章节标题（如"第X章"、"第X回"等）</li>
+                <li>📖 自动将前3章设置为免费试读</li>
+                <li>📝 如果文件中没有章节标记，将整个内容作为一章导入</li>
+            </ul>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">🚀 开始导入</button>
+            <a href="{{ url_for('creator_chapters', novel_id=novel._id) }}" class="btn btn-secondary">返回</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

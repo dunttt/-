@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}小说创作与阅读平台{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if session.user_id %}
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">小说创作与阅读平台</a>
+            <ul class="navbar-menu">
+                {% if session.role == 'admin' %}
+                <li><a href="{{ url_for('admin_dashboard') }}">控制台</a></li>
+                <li><a href="{{ url_for('admin_users') }}">用户管理</a></li>
+                <li><a href="{{ url_for('admin_review') }}">审核小说</a></li>
+                <li><a href="{{ url_for('admin_statistics') }}">数据统计</a></li>
+                {% elif session.role == 'creator' %}
+                <li><a href="{{ url_for('creator_dashboard') }}">控制台</a></li>
+                <li><a href="{{ url_for('creator_novels') }}">我的小说</a></li>
+                <li><a href="{{ url_for('creator_create_novel') }}">创建小说</a></li>
+                {% elif session.role == 'reader' %}
+                <li><a href="{{ url_for('reader_dashboard') }}">我的书架</a></li>
+                <li><a href="{{ url_for('reader_novels') }}">小说广场</a></li>
+                <li><a href="{{ url_for('reader_recommendations') }}">为你推荐</a></li>
+                <li><a href="{{ url_for('reader_orders') }}">我的订单</a></li>
+                {% endif %}
+                <li><span style="color: #ecf0f1;">{{ session.username }}</span></li>
+                <li><a href="{{ url_for('logout') }}">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

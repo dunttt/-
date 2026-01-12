@@ -1,0 +1,58 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}编辑小说 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">✏️ 编辑小说：{{ novel.title }}</h1>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <form method="POST">
+        <div class="form-group">
+            <label for="title" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">小说标题 *</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ novel.title }}" required style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem;">
+        </div>
+        
+        <div class="form-group">
+            <label for="category" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">分类 *</label>
+            <select id="category" name="category" class="form-control" required style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem;">
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == novel.category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="tags" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">标签（用逗号分隔）</label>
+            <input type="text" id="tags" name="tags" class="form-control" value="{{ novel.tags_str }}" style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem;">
+        </div>
+        
+        <div class="form-group">
+            <label for="intro" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">简介 *</label>
+            <textarea id="intro" name="intro" class="form-control" required style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem; min-height: 150px;">{{ novel.intro }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="price" style="color: #5a4a3a; font-weight: 600; margin-bottom: 0.5rem; display: block;">定价（元）</label>
+            <input type="number" id="price" name="price" class="form-control" value="{{ novel.price }}" step="0.01" min="0" style="border: 2px solid #f0e6d6; border-radius: 8px; padding: 0.85rem;">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">💾 保存修改</button>
+            <a href="{{ url_for('creator_chapters', novel_id=novel._id) }}" class="btn btn-success">📚 管理章节</a>
+            <a href="{{ url_for('creator_novels') }}" class="btn btn-secondary">返回</a>
+        </div>
+    </form>
+</div>
+
+{% if novel.status == 'rejected' and novel.review %}
+<div class="card" style="border: 2px solid #e74c3c; background: #fff5f5;">
+    <div class="card-header" style="color: #e74c3c; background: transparent; border-bottom: 1px solid #e74c3c;">
+        ❌ 驳回原因
+    </div>
+    <p style="color: #c0392b; line-height: 1.8;">{{ novel.review.opinion }}</p>
+    <p style="color: #8b7355; font-size: 0.9rem;">
+        🕐 审核时间：{{ novel.review.time.strftime('%Y-%m-%d %H:%M') if novel.review.time else '-' }}
+    </p>
+</div>
+{% endif %}
+{% endblock %}

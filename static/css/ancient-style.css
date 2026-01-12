@@ -1,0 +1,422 @@
+/* ========================================
+   悦读坊 - 统一古风样式
+   ======================================== */
+
+/* 重置默认样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+    background: #f5f1e8;
+    color: #333;
+    min-height: 100vh;
+}
+
+/* 顶部导航栏 */
+.top-nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #c8553d;
+    text-decoration: none;
+    letter-spacing: 2px;
+    transition: color 0.3s;
+}
+
+.logo:hover {
+    color: #a0442f;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-menu a {
+    color: #5a4a3a;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.nav-menu a:hover {
+    color: #c8553d;
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #c8553d;
+    transition: width 0.3s;
+}
+
+.nav-menu a:hover::after {
+    width: 100%;
+}
+
+.nav-btn {
+    padding: 0.6rem 1.5rem;
+    background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+    color: white !important;
+    border-radius: 25px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(200, 85, 61, 0.3);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200, 85, 61, 0.4);
+}
+
+.nav-btn::after {
+    display: none;
+}
+
+/* 页面容器 */
+.page-container {
+    min-height: calc(100vh - 70px);
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23f5f1e8;stop-opacity:1" /><stop offset="100%" style="stop-color:%23e8dcc4;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23grad)" width="1200" height="800"/><path d="M 100 600 Q 300 550 500 600 T 900 600" stroke="%23c9b998" stroke-width="1.5" fill="none" opacity="0.2"/><circle cx="200" cy="150" r="30" fill="%23d4c5a9" opacity="0.1"/><circle cx="1000" cy="200" r="50" fill="%23d4c5a9" opacity="0.08"/></svg>') center/cover fixed;
+    padding: 3rem 0;
+}
+
+/* 主内容卡片 */
+.main-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* 页面标题 */
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #5a4a3a;
+    text-align: center;
+    margin-bottom: 2rem;
+    letter-spacing: 4px;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #c8553d 50%, transparent 100%);
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.95rem;
+    color: #5a4a3a;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1.2rem;
+    font-size: 1rem;
+    border: 2px solid #e8dcc4;
+    border-radius: 8px;
+    background: #faf8f3;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #c8553d;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(200, 85, 61, 0.1);
+}
+
+.form-select {
+    width: 100%;
+    padding: 0.85rem 1.2rem;
+    font-size: 1rem;
+    border: 2px solid #e8dcc4;
+    border-radius: 8px;
+    background: #faf8f3;
+    color: #333;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #c8553d;
+    background: white;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(200, 85, 61, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200, 85, 61, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #8b7355 0%, #6d5c47 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #5f9e6e 0%, #4a7c58 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(95, 158, 110, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(95, 158, 110, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #d4a259 0%, #b8894a 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(212, 162, 89, 0.3);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 162, 89, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #d65d5d 0%, #b44a4a 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(214, 93, 93, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(214, 93, 93, 0.4);
+}
+
+.btn-block {
+    width: 100%;
+    text-align: center;
+}
+
+/* 提示信息 */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+    animation: slideInDown 0.4s ease-out;
+}
+
+.alert-success {
+    background: rgba(95, 158, 110, 0.1);
+    border-color: #5f9e6e;
+    color: #4a7c58;
+}
+
+.alert-danger {
+    background: rgba(214, 93, 93, 0.1);
+    border-color: #d65d5d;
+    color: #b44a4a;
+}
+
+.alert-warning {
+    background: rgba(212, 162, 89, 0.1);
+    border-color: #d4a259;
+    color: #b8894a;
+}
+
+.alert-info {
+    background: rgba(90, 74, 58, 0.1);
+    border-color: #8b7355;
+    color: #6d5c47;
+}
+
+/* 链接样式 */
+.text-link {
+    color: #c8553d;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.text-link:hover {
+    color: #a0442f;
+    text-decoration: underline;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #8b7355;
+}
+
+/* 卡片样式 */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid #f0e6d6;
+}
+
+.card-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #5a4a3a;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0e6d6;
+}
+
+/* 徽章 */
+.badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-primary {
+    background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+    color: white;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #5f9e6e 0%, #4a7c58 100%);
+    color: white;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #d4a259 0%, #b8894a 100%);
+    color: white;
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #d65d5d 0%, #b44a4a 100%);
+    color: white;
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 1rem;
+    }
+
+    .nav-menu {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .main-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+}

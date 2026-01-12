@@ -1,0 +1,74 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}我的小说 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">我的小说</h1>
+
+<div style="margin-bottom: 2rem;">
+    <a href="{{ url_for('creator_create_novel') }}" class="btn btn-primary">✏️ 创建新小说</a>
+</div>
+
+<div class="card">
+    {% if novels %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #faf8f3; border-bottom: 2px solid #f0e6d6;">
+                    <th style="padding: 1rem; text-align: left; color: #5a4a3a; font-weight: 600;">小说ID</th>
+                    <th style="padding: 1rem; text-align: left; color: #5a4a3a; font-weight: 600;">标题</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">分类</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">状态</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">章节数</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">价格</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">阅读量</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">销量</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for novel in novels %}
+                <tr style="border-bottom: 1px solid #f0e6d6; transition: all 0.3s;"
+                    onmouseover="this.style.background='#faf8f3'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; color: #8b7355; font-size: 0.9rem;">{{ novel.novelId }}</td>
+                    <td style="padding: 1rem; color: #333; font-weight: 500;">{{ novel.title }}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <span class="badge badge-primary">{{ novel.category }}</span>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if novel.status == 'draft' %}
+                        <span class="badge badge-secondary">📝 草稿</span>
+                        {% elif novel.status == 'pending' %}
+                        <span class="badge badge-warning">⏳ 待审核</span>
+                        {% elif novel.status == 'online' %}
+                        <span class="badge badge-success">✅ 已上线</span>
+                        {% elif novel.status == 'rejected' %}
+                        <span class="badge badge-danger">❌ 已驳回</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; text-align: center; color: #666;">{{ novel.chapters|length }}</td>
+                    <td style="padding: 1rem; text-align: center; color: #c8553d; font-weight: 600;">¥{{ '%.2f'|format(novel.price) }}</td>
+                    <td style="padding: 1rem; text-align: center; color: #666;">{{ novel.readCount }}</td>
+                    <td style="padding: 1rem; text-align: center; color: #666;">{{ novel.saleCount }}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <a href="{{ url_for('creator_edit_novel', novel_id=novel._id) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">编辑</a>
+                            <a href="{{ url_for('creator_chapters', novel_id=novel._id) }}" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.9rem;">章节</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📝</div>
+        <h3>还没有创建小说</h3>
+        <p>开始你的创作之旅吧！</p>
+        <a href="{{ url_for('creator_create_novel') }}" class="btn btn-primary">立即创建</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

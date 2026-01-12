@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>悦读坊 - 发现好书，分享阅读乐趣</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* 重置默认样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #d43f3a;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #333;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #d43f3a;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d43f3a;
+            transition: width 0.3s;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .login-btn {
+            padding: 0.6rem 1.5rem;
+            background: linear-gradient(135deg, #d43f3a 0%, #e74c3c 100%);
+            color: white !important;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(212, 63, 58, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 63, 58, 0.4);
+        }
+
+        .login-btn::after {
+            display: none;
+        }
+
+        /* 英雄区域（横幅） */
+        .hero-section {
+            position: relative;
+            height: 600px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23e8dcc4;stop-opacity:1" /><stop offset="100%" style="stop-color:%23f5ebe0;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23grad)" width="1200" height="600"/><path d="M 100 400 Q 300 350 500 400 T 900 400" stroke="%23c9b998" stroke-width="2" fill="none" opacity="0.3"/><path d="M 200 450 Q 400 420 600 450 T 1000 450" stroke="%23c9b998" stroke-width="1.5" fill="none" opacity="0.2"/><circle cx="150" cy="200" r="40" fill="%23d4c5a9" opacity="0.15"/><circle cx="1000" cy="150" r="60" fill="%23d4c5a9" opacity="0.1"/></svg>') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(245, 235, 224, 0.3) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 300;
+            color: #5a4a3a;
+            margin-bottom: 1.5rem;
+            letter-spacing: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #8b7355;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        /* 内容区域 */
+        .main-content {
+            max-width: 1400px;
+            margin: -80px auto 0;
+            padding: 0 2rem 4rem;
+            position: relative;
+            z-index: 100;
+        }
+
+        /* 精选推荐标题 */
+        .section-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #d43f3a 0%, transparent 100%);
+        }
+
+        .section-subtitle {
+            color: #888;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+
+        /* 书籍网格 */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: #d43f3a;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .book-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .book-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .book-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #d43f3a;
+        }
+
+        .free-tag {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .read-btn {
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, #d43f3a 0%, #e74c3c 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .read-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(212, 63, 58, 0.4);
+        }
+
+        /* 动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">悦读坊</a>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}">首页</a></li>
+                {% if logged_in %}
+                    {% if session.role == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}">管理后台</a></li>
+                    {% elif session.role == 'creator' %}
+                    <li><a href="{{ url_for('creator_dashboard') }}">创作中心</a></li>
+                    {% elif session.role == 'reader' %}
+                    <li><a href="{{ url_for('reader_novels') }}">小说广场</a></li>
+                    <li><a href="{{ url_for('reader_recommendations') }}">为你推荐</a></li>
+                    <li><a href="{{ url_for('reader_dashboard') }}">我的书架</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('logout') }}">退出登录</a></li>
+                {% else %}
+                <li><a href="{{ url_for('register') }}">新书上架</a></li>
+                <li><a href="{{ url_for('register') }}">专题书单</a></li>
+                <li><a href="{{ url_for('register') }}">书籍寻购</a></li>
+                <li><a href="{{ url_for('register') }}">读者评论</a></li>
+                <li><a href="{{ url_for('register') }}">关于我们</a></li>
+                <li><a href="{{ url_for('login') }}" class="login-btn">登录</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 英雄横幅 -->
+    <section class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">发现好书，分享阅读乐趣</h1>
+            <p class="hero-subtitle">精选书籍推荐</p>
+        </div>
+    </section>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 精选推荐 -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">精选书籍推荐</h2>
+                <p class="section-subtitle">平台最受欢迎的作品，为您精心挑选</p>
+            </div>
+            <div class="books-grid">
+                {% if featured_novels %}
+                    {% for novel in featured_novels %}
+                    <div class="book-card" onclick="window.location.href='{% if logged_in %}{{ url_for('reader_novel_detail', novel_id=novel._id) }}{% else %}{{ url_for('login') }}{% endif %}'">
+                        <div class="book-cover" style="background: linear-gradient(135deg, 
+                            {% if loop.index0 % 6 == 0 %}#667eea 0%, #764ba2 100%
+                            {% elif loop.index0 % 6 == 1 %}#f093fb 0%, #f5576c 100%
+                            {% elif loop.index0 % 6 == 2 %}#4facfe 0%, #00f2fe 100%
+                            {% elif loop.index0 % 6 == 3 %}#43e97b 0%, #38f9d7 100%
+                            {% elif loop.index0 % 6 == 4 %}#fa709a 0%, #fee140 100%
+                            {% else %}#30cfd0 0%, #330867 100%{% endif %});">
+                            {{ novel.title[:2] }}
+                        </div>
+                        <div class="book-info">
+                            <h3 class="book-title">{{ novel.title }}</h3>
+                            <div class="book-meta">
+                                <span>📚 {{ novel.category }}</span>
+                                <span>✍️ {{ novel.author_name }}</span>
+                                <span>👁️ {{ novel.readCount }}</span>
+                            </div>
+                            <p class="book-desc">{{ novel.intro }}</p>
+                            <div class="book-price">
+                                {% if novel.price > 0 %}
+                                <span class="price">¥{{ '%.2f'|format(novel.price) }}</span>
+                                {% else %}
+                                <span class="free-tag">免费阅读</span>
+                                {% endif %}
+                                <button class="read-btn">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: #888; padding: 3rem; grid-column: 1/-1;">
+                        暂无推荐小说，敬请期待...
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- 新书上架 -->
+        {% if new_novels %}
+        <section style="margin-top: 3rem;">
+            <div class="section-header">
+                <h2 class="section-title">新书上架</h2>
+                <p class="section-subtitle">最新发布的作品，抢先阅读</p>
+            </div>
+            <div class="books-grid">
+                {% for novel in new_novels %}
+                <div class="book-card" onclick="window.location.href='{% if logged_in %}{{ url_for('reader_novel_detail', novel_id=novel._id) }}{% else %}{{ url_for('login') }}{% endif %}'">
+                    <div class="book-cover" style="background: linear-gradient(135deg, 
+                        {% if loop.index0 % 6 == 0 %}#4facfe 0%, #00f2fe 100%
+                        {% elif loop.index0 % 6 == 1 %}#43e97b 0%, #38f9d7 100%
+                        {% elif loop.index0 % 6 == 2 %}#667eea 0%, #764ba2 100%
+                        {% elif loop.index0 % 6 == 3 %}#fa709a 0%, #fee140 100%
+                        {% elif loop.index0 % 6 == 4 %}#f093fb 0%, #f5576c 100%
+                        {% else %}#30cfd0 0%, #330867 100%{% endif %});">
+                        {{ novel.title[:2] }}
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">{{ novel.title }}</h3>
+                        <div class="book-meta">
+                            <span>📚 {{ novel.category }}</span>
+                            <span>✍️ {{ novel.author_name }}</span>
+                            <span>✨ 新书</span>
+                        </div>
+                        <p class="book-desc">{{ novel.intro }}</p>
+                        <div class="book-price">
+                            {% if novel.price > 0 %}
+                            <span class="price">¥{{ '%.2f'|format(novel.price) }}</span>
+                            {% else %}
+                            <span class="free-tag">免费阅读</span>
+                            {% endif %}
+                            <button class="read-btn">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>

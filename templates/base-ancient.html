@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}悦读坊{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ancient-style.css') }}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* 页面特定样式 */
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 小说网格 */
+        .novels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .novel-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid #f0e6d6;
+            cursor: pointer;
+        }
+
+        .novel-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: #c8553d;
+        }
+
+        .novel-cover {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .novel-info {
+            padding: 1.5rem;
+        }
+
+        .novel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .novel-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .novel-intro {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(200, 85, 61, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            color: #5a4a3a;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 2px solid #e8dcc4;
+            transition: all 0.3s;
+        }
+
+        .pagination a:hover {
+            background: #c8553d;
+            color: white;
+            border-color: #c8553d;
+        }
+
+        .pagination .active {
+            background: #c8553d;
+            color: white;
+            border-color: #c8553d;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #8b7355;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">悦读坊</a>
+            <ul class="nav-menu">
+                {% if session.user_id %}
+                    <li><a href="{{ url_for('index') }}">首页</a></li>
+                    {% if session.role == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}">控制台</a></li>
+                    <li><a href="{{ url_for('admin_users') }}">用户管理</a></li>
+                    <li><a href="{{ url_for('admin_review') }}">审核小说</a></li>
+                    <li><a href="{{ url_for('admin_statistics') }}">数据统计</a></li>
+                    {% elif session.role == 'creator' %}
+                    <li><a href="{{ url_for('creator_dashboard') }}">控制台</a></li>
+                    <li><a href="{{ url_for('creator_novels') }}">我的小说</a></li>
+                    <li><a href="{{ url_for('creator_create_novel') }}">创建小说</a></li>
+                    {% elif session.role == 'reader' %}
+                    <li><a href="{{ url_for('reader_novels') }}">小说广场</a></li>
+                    <li><a href="{{ url_for('reader_recommendations') }}">为你推荐</a></li>
+                    <li><a href="{{ url_for('reader_dashboard') }}">我的书架</a></li>
+                    <li><a href="{{ url_for('reader_orders') }}">我的订单</a></li>
+                    {% endif %}
+                    <li><span style="color: #5a4a3a;">{{ session.username }}</span></li>
+                    <li><a href="{{ url_for('logout') }}" class="nav-btn">退出登录</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('index') }}">首页</a></li>
+                    <li><a href="{{ url_for('login') }}" class="nav-btn">登录</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+        <div class="content-wrapper">
+            <!-- 提示信息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- 主内容 -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}管理员控制台 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">管理员控制台</h1>
+
+<!-- 统计卡片 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">👥 总用户数</div>
+        <div class="stat-value">{{ total_users }}</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #5f9e6e 0%, #4a7c58 100%);">
+        <div class="stat-label">📚 总小说数</div>
+        <div class="stat-value">{{ total_novels }}</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #d4a259 0%, #b8894a 100%);">
+        <div class="stat-label">✅ 已上线小说</div>
+        <div class="stat-value">{{ online_novels }}</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+        <div class="stat-label">⏳ 待审核小说</div>
+        <div class="stat-value">{{ pending_novels }}</div>
+    </div>
+</div>
+
+<!-- 快捷操作 -->
+<div class="card">
+    <div class="card-header">⚡ 快捷操作</div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-primary">👥 用户管理</a>
+        <a href="{{ url_for('admin_review') }}" class="btn btn-warning">📝 审核小说</a>
+        <a href="{{ url_for('admin_statistics') }}" class="btn btn-success">📊 数据统计</a>
+    </div>
+</div>
+{% endblock %}

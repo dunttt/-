@@ -1,0 +1,114 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}小说广场 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">小说广场</h1>
+
+<!-- 搜索和筛选 -->
+<div class="card">
+    <form method="GET" action="{{ url_for('reader_novels') }}">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <!-- 搜索框 -->
+            <div style="flex: 1; min-width: 300px;">
+                <input type="text" 
+                       name="keyword" 
+                       class="form-control" 
+                       placeholder="🔍 搜索书名、作者、标签..." 
+                       value="{{ keyword if keyword else '' }}">
+            </div>
+            
+            <!-- 分类 -->
+            <select name="category" class="form-select" style="width: 150px;" onchange="this.form.submit()">
+                <option value="">全部分类</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            
+            <!-- 按钮 -->
+            <button type="submit" class="btn btn-primary">搜索</button>
+            {% if keyword or current_category %}
+            <a href="{{ url_for('reader_novels') }}" class="btn btn-secondary">清空筛选</a>
+            {% endif %}
+        </div>
+        
+        <!-- 搜索结果提示 -->
+        {% if keyword %}
+        <div style="padding: 0.75rem 1rem; background: rgba(200, 85, 61, 0.1); border-left: 4px solid #c8553d; border-radius: 8px; color: #5a4a3a;">
+            <strong>🔍 搜索结果：</strong>关键词"<span style="font-weight: bold; color: #c8553d;">{{ keyword }}</span>"
+            {% if current_category %}
+            + 分类"<span style="font-weight: bold; color: #c8553d;">{{ current_category }}</span>"
+            {% endif %}
+            找到 <span style="font-weight: bold; color: #c8553d;">{{ total_results }}</span> 部小说
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- 小说列表 -->
+{% if novels %}
+<div class="novels-grid">
+    {% for novel in novels %}
+    <div class="novel-card" onclick="window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">
+        <div class="novel-cover" style="background: linear-gradient(135deg, 
+            {% if loop.index0 % 6 == 0 %}#c8553d 0%, #a0442f 100%
+            {% elif loop.index0 % 6 == 1 %}#8b7355 0%, #6d5c47 100%
+            {% elif loop.index0 % 6 == 2 %}#5f9e6e 0%, #4a7c58 100%
+            {% elif loop.index0 % 6 == 3 %}#d4a259 0%, #b8894a 100%
+            {% elif loop.index0 % 6 == 4 %}#7a92a3 0%, #5d7386 100%
+            {% else %}#9b6b6f 0%, #7d5659 100%{% endif %});">
+            {{ novel.title[:2] }}
+        </div>
+        <div class="novel-info">
+            <div class="novel-title">{{ novel.title }}</div>
+            <div class="novel-meta">
+                <span class="badge badge-primary">{{ novel.category }}</span>
+                <span>✍️ {{ novel.author_name }}</span>
+            </div>
+            <div class="novel-meta">
+                <span>📖 {{ novel.chapters|length }} 章</span>
+                <span>👁️ {{ novel.readCount }}</span>
+                {% if novel.price > 0 %}
+                <span style="color: #c8553d; font-weight: bold;">¥{{ '%.2f'|format(novel.price) }}</span>
+                {% else %}
+                <span class="badge badge-success">免费</span>
+                {% endif %}
+            </div>
+            <div class="novel-intro">{{ novel.intro }}</div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="event.stopPropagation(); window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">查看详情</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="?page={{ page - 1 }}{% if current_category %}&category={{ current_category }}{% endif %}{% if keyword %}&keyword={{ keyword }}{% endif %}">上一页</a>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+        <span class="active">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}{% if current_category %}&category={{ current_category }}{% endif %}{% if keyword %}&keyword={{ keyword }}{% endif %}">{{ p }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <a href="?page={{ page + 1 }}{% if current_category %}&category={{ current_category }}{% endif %}{% if keyword %}&keyword={{ keyword }}{% endif %}">下一页</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="icon">📚</div>
+    <h3>没有找到相关小说</h3>
+    <p>尝试使用其他关键词或清空筛选条件</p>
+    <a href="{{ url_for('reader_novels') }}" class="btn btn-primary">浏览全部小说</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,449 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}数据统计与可视化 - 悦读坊{% endblock %}
+
+{% block extra_css %}
+<style>
+.chart-container {
+    background: #fdfcfa;
+    border: 2px solid #f0e6d6;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s;
+}
+
+.chart-container:hover {
+    box-shadow: 0 8px 24px rgba(200, 85, 61, 0.15);
+    transform: translateY(-2px);
+}
+
+.chart-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #5a4a3a;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #c8553d;
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(200, 85, 61, 0.2);
+    transition: all 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(200, 85, 61, 0.3);
+}
+
+.stat-box:nth-child(2) {
+    background: linear-gradient(135deg, #5f9e6e 0%, #4a7c58 100%);
+    box-shadow: 0 4px 16px rgba(95, 158, 110, 0.2);
+}
+
+.stat-box:nth-child(2):hover {
+    box-shadow: 0 8px 24px rgba(95, 158, 110, 0.3);
+}
+
+.stat-box:nth-child(3) {
+    background: linear-gradient(135deg, #d4a259 0%, #b8894a 100%);
+    box-shadow: 0 4px 16px rgba(212, 162, 89, 0.2);
+}
+
+.stat-box:nth-child(3):hover {
+    box-shadow: 0 8px 24px rgba(212, 162, 89, 0.3);
+}
+
+.stat-box:nth-child(4) {
+    background: linear-gradient(135deg, #7a92a3 0%, #5d7386 100%);
+    box-shadow: 0 4px 16px rgba(122, 146, 163, 0.2);
+}
+
+.stat-box:nth-child(4):hover {
+    box-shadow: 0 8px 24px rgba(122, 146, 163, 0.3);
+}
+
+.stat-box:nth-child(5) {
+    background: linear-gradient(135deg, #9b6b6f 0%, #7d5659 100%);
+    box-shadow: 0 4px 16px rgba(155, 107, 111, 0.2);
+}
+
+.stat-box:nth-child(5):hover {
+    box-shadow: 0 8px 24px rgba(155, 107, 111, 0.3);
+}
+
+.stat-box .value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.stat-box .label {
+    font-size: 1rem;
+    opacity: 0.95;
+}
+
+.chart {
+    width: 100%;
+    height: 400px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">📊 数据统计与可视化</h1>
+
+<!-- 总体统计概览 -->
+<div class="stats-overview">
+    <div class="stat-box">
+        <div class="label">👥 总用户数</div>
+        <div class="value">{{ total_stats.total_users }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="label">📚 在线小说</div>
+        <div class="value">{{ total_stats.total_novels }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="label">📖 总章节数</div>
+        <div class="value">{{ total_stats.total_chapters }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="label">💰 订单数</div>
+        <div class="value">{{ total_stats.total_orders }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="label">💵 总收益</div>
+        <div class="value">¥{{ '%.2f'|format(total_stats.total_revenue) }}</div>
+    </div>
+</div>
+
+<!-- 图表区域 -->
+<div class="chart-container">
+    <div class="chart-title">📊 小说分类分布</div>
+    <div id="categoryChart" class="chart"></div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="chart-container">
+        <div class="chart-title">🔥 热门小说Top10（按阅读量）</div>
+        <div id="topReadChart" class="chart"></div>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-title">💎 热门小说Top10（按销量）</div>
+        <div id="topSalesChart" class="chart"></div>
+    </div>
+</div>
+
+<div class="chart-container">
+    <div class="chart-title">✍️ 创作者统计Top10</div>
+    <div id="creatorChart" class="chart"></div>
+</div>
+
+<div class="chart-container">
+    <div class="chart-title">👤 用户角色分布</div>
+    <div id="userRoleChart" class="chart"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 引入 ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<script>
+// 古风配色方案
+const ancientColors = ['#c8553d', '#8b7355', '#5f9e6e', '#d4a259', '#7a92a3', '#9b6b6f', '#a0442f', '#6d5c47'];
+
+// 1. 小说分类分布（饼图）
+var categoryChart = echarts.init(document.getElementById('categoryChart'));
+var categoryOption = {
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 'center'
+    },
+    series: [
+        {
+            name: '小说分类',
+            type: 'pie',
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 2
+            },
+            label: {
+                show: true,
+                formatter: '{b}: {c}'
+            },
+            emphasis: {
+                label: {
+                    show: true,
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            data: [
+                {% for stat in category_stats %}
+                {value: {{ stat.count }}, name: '{{ stat._id }}'},
+                {% endfor %}
+            ]
+        }
+    ],
+    color: ancientColors
+};
+categoryChart.setOption(categoryOption);
+
+// 2. 热门小说Top10（按阅读量）- 柱状图
+var topReadChart = echarts.init(document.getElementById('topReadChart'));
+var topReadOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'value',
+        name: '阅读量'
+    },
+    yAxis: {
+        type: 'category',
+        data: [
+            {% for novel in top_novels_read|reverse %}
+            '{{ novel.title[:8] }}...',
+            {% endfor %}
+        ]
+    },
+    series: [
+        {
+            name: '阅读量',
+            type: 'bar',
+            data: [
+                {% for novel in top_novels_read|reverse %}
+                {{ novel.readCount }},
+                {% endfor %}
+            ],
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                    {offset: 0, color: '#c8553d'},
+                    {offset: 1, color: '#a0442f'}
+                ])
+            },
+            label: {
+                show: true,
+                position: 'right'
+            }
+        }
+    ]
+};
+topReadChart.setOption(topReadOption);
+
+// 3. 热门小说Top10（按销量）- 柱状图
+var topSalesChart = echarts.init(document.getElementById('topSalesChart'));
+var topSalesOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'value',
+        name: '销量'
+    },
+    yAxis: {
+        type: 'category',
+        data: [
+            {% for novel in top_novels_sales|reverse %}
+            '{{ novel.title[:8] }}...',
+            {% endfor %}
+        ]
+    },
+    series: [
+        {
+            name: '销量',
+            type: 'bar',
+            data: [
+                {% for novel in top_novels_sales|reverse %}
+                {{ novel.saleCount }},
+                {% endfor %}
+            ],
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                    {offset: 0, color: '#d4a259'},
+                    {offset: 1, color: '#b8894a'}
+                ])
+            },
+            label: {
+                show: true,
+                position: 'right'
+            }
+        }
+    ]
+};
+topSalesChart.setOption(topSalesOption);
+
+// 4. 创作者统计Top10 - 多系列柱状图
+var creatorChart = echarts.init(document.getElementById('creatorChart'));
+var creatorOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    legend: {
+        data: ['小说数', '总阅读量', '总销量']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'category',
+        data: [
+            {% for stat in creator_stats %}
+            '{{ stat.author_name }}',
+            {% endfor %}
+        ],
+        axisLabel: {
+            rotate: 30
+        }
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [
+        {
+            name: '小说数',
+            type: 'bar',
+            data: [
+                {% for stat in creator_stats %}
+                {{ stat.novelCount }},
+                {% endfor %}
+            ],
+            itemStyle: {
+                color: '#c8553d'
+            }
+        },
+        {
+            name: '总阅读量',
+            type: 'bar',
+            data: [
+                {% for stat in creator_stats %}
+                {{ stat.totalRead }},
+                {% endfor %}
+            ],
+            itemStyle: {
+                color: '#5f9e6e'
+            }
+        },
+        {
+            name: '总销量',
+            type: 'bar',
+            data: [
+                {% for stat in creator_stats %}
+                {{ stat.totalSales }},
+                {% endfor %}
+            ],
+            itemStyle: {
+                color: '#d4a259'
+            }
+        }
+    ]
+};
+creatorChart.setOption(creatorOption);
+
+// 5. 用户角色分布 - 环形图
+var userRoleChart = echarts.init(document.getElementById('userRoleChart'));
+var roleNames = {
+    'admin': '管理员',
+    'creator': '创作者',
+    'reader': '读者'
+};
+var userRoleOption = {
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+        top: 'center',
+        right: 10
+    },
+    series: [
+        {
+            name: '用户角色',
+            type: 'pie',
+            radius: ['50%', '70%'],
+            center: ['40%', '50%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 2
+            },
+            label: {
+                show: true,
+                formatter: '{b}: {c}'
+            },
+            emphasis: {
+                label: {
+                    show: true,
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            data: [
+                {% for stat in user_role_stats %}
+                {value: {{ stat.count }}, name: roleNames['{{ stat._id }}'] || '{{ stat._id }}'},
+                {% endfor %}
+            ]
+        }
+    ],
+    color: ['#c8553d', '#5f9e6e', '#d4a259']
+};
+userRoleChart.setOption(userRoleOption);
+
+// 响应式调整
+window.addEventListener('resize', function() {
+    categoryChart.resize();
+    topReadChart.resize();
+    topSalesChart.resize();
+    creatorChart.resize();
+    userRoleChart.resize();
+});
+</script>
+{% endblock %}

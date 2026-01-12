@@ -1,0 +1,59 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}章节管理 - {{ novel.title }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">📚 章节管理：{{ novel.title }}</h1>
+
+<div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{{ url_for('creator_add_chapter', novel_id=novel._id) }}" class="btn btn-success">➕ 添加章节</a>
+    <a href="{{ url_for('creator_import_chapters', novel_id=novel._id) }}" class="btn btn-primary">📥 导入章节</a>
+    {% if novel.status == 'draft' and novel.chapters|length > 0 %}
+    <form method="POST" action="{{ url_for('creator_submit_novel', novel_id=novel._id) }}" style="display: inline;">
+        <button type="submit" class="btn btn-warning" onclick="return confirm('确定要提交审核吗？')">📤 提交审核</button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('creator_edit_novel', novel_id=novel._id) }}" class="btn btn-secondary">返回编辑</a>
+</div>
+
+<div class="card">
+    <div class="card-header" style="font-size: 1.1rem;">
+        📖 章节列表（共 {{ novel.chapters|length }} 章）
+    </div>
+    
+    {% if novel.chapters %}
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        {% for chapter in novel.chapters %}
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0e6d6; transition: all 0.3s; {% if loop.last %}border-bottom: none;{% endif %}"
+            onmouseover="this.style.background='#faf8f3'"
+            onmouseout="this.style.background='transparent'">
+            <div>
+                <strong style="color: #5a4a3a; font-size: 1rem; margin-right: 0.75rem;">{{ chapter.title }}</strong>
+                {% if chapter.isFree %}
+                <span class="badge badge-success">免费</span>
+                {% else %}
+                <span class="badge badge-warning">付费</span>
+                {% endif %}
+                <span style="color: #8b7355; font-size: 0.9rem; margin-left: 1rem;">
+                    📅 {{ chapter.createTime.strftime('%Y-%m-%d') if chapter.createTime else '-' }}
+                </span>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="{{ url_for('creator_edit_chapter', novel_id=novel._id, chapter_id=chapter.chapterId) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">编辑</a>
+                <form method="POST" action="{{ url_for('creator_delete_chapter', novel_id=novel._id, chapter_id=chapter.chapterId) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);" onclick="return confirm('确定要删除此章节吗？')">删除</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📖</div>
+        <h3>还没有添加章节</h3>
+        <p>开始添加您的精彩内容吧！</p>
+        <a href="{{ url_for('creator_add_chapter', novel_id=novel._id) }}" class="btn btn-primary">立即添加</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

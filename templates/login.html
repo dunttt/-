@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 悦读坊</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ancient-style.css') }}">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">悦读坊</a>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}">首页</a></li>
+                <li><a href="{{ url_for('register') }}" class="nav-btn">注册账号</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+        <div class="main-card" style="max-width: 500px;">
+            <h1 class="page-title">欢迎回来</h1>
+
+            <!-- 提示信息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- 登录表单 -->
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" name="username" class="form-control" placeholder="请输入用户名" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" name="password" class="form-control" placeholder="请输入密码" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">登 录</button>
+                </div>
+
+                <div class="text-center text-muted" style="margin-top: 1.5rem;">
+                    还没有账号？<a href="{{ url_for('register') }}" class="text-link">立即注册</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

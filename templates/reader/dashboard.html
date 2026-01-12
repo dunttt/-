@@ -1,0 +1,67 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}我的书架 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">我的书架</h1>
+
+<!-- 统计信息 -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-label">📚 已购买小说</div>
+        <div class="stat-value">{{ total_purchased }}</div>
+    </div>
+</div>
+
+<!-- 快速入口 -->
+<div class="card">
+    <div class="card-header">📌 快速入口</div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('reader_novels') }}" class="btn btn-primary">📚 小说广场</a>
+        <a href="{{ url_for('reader_recommendations') }}" class="btn btn-success">🎯 为你推荐</a>
+        <a href="{{ url_for('reader_orders') }}" class="btn btn-warning">💰 我的订单</a>
+    </div>
+</div>
+
+<!-- 已购小说 -->
+<h2 style="font-size: 1.5rem; font-weight: 600; color: #5a4a3a; margin: 2rem 0 1rem; padding-left: 1rem; border-left: 4px solid #c8553d;">
+    已购小说
+</h2>
+
+{% if purchased_novels %}
+<div class="novels-grid">
+    {% for novel in purchased_novels %}
+    <div class="novel-card" onclick="window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">
+        <div class="novel-cover" style="background: linear-gradient(135deg, 
+            {% if loop.index0 % 6 == 0 %}#c8553d 0%, #a0442f 100%
+            {% elif loop.index0 % 6 == 1 %}#8b7355 0%, #6d5c47 100%
+            {% elif loop.index0 % 6 == 2 %}#5f9e6e 0%, #4a7c58 100%
+            {% elif loop.index0 % 6 == 3 %}#d4a259 0%, #b8894a 100%
+            {% elif loop.index0 % 6 == 4 %}#7a92a3 0%, #5d7386 100%
+            {% else %}#9b6b6f 0%, #7d5659 100%{% endif %});">
+            {{ novel.title[:2] }}
+        </div>
+        <div class="novel-info">
+            <div class="novel-title">{{ novel.title }}</div>
+            <div class="novel-meta">
+                <span class="badge badge-primary">{{ novel.category }}</span>
+                <span>📖 {{ novel.chapters|length }} 章</span>
+            </div>
+            <div class="novel-intro">{{ novel.intro }}</div>
+            <button class="btn btn-primary" style="width: 100%;">继续阅读</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="icon">📚</div>
+    <h3>书架空空如也</h3>
+    <p>去小说广场看看，购买喜欢的小说吧</p>
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+        <a href="{{ url_for('reader_novels') }}" class="btn btn-primary">浏览小说广场</a>
+        <a href="{{ url_for('reader_recommendations') }}" class="btn btn-success">查看推荐</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

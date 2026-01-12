@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 悦读坊</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ancient-style.css') }}">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">悦读坊</a>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}">首页</a></li>
+                <li><a href="{{ url_for('login') }}" class="nav-btn">登录</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+        <div class="main-card" style="max-width: 500px;">
+            <h1 class="page-title">加入悦读坊</h1>
+
+            <!-- 提示信息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- 注册表单 -->
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" name="username" class="form-control" placeholder="请输入用户名" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" name="password" class="form-control" placeholder="请输入密码（至少6位）" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="请再次输入密码" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">选择身份</label>
+                    <select name="role" class="form-select">
+                        <option value="reader">读者 - 阅读和购买小说</option>
+                        <option value="creator">创作者 - 发布和管理作品</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">注 册</button>
+                </div>
+
+                <div class="text-center text-muted" style="margin-top: 1.5rem;">
+                    已有账号？<a href="{{ url_for('login') }}" class="text-link">立即登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

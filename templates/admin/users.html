@@ -1,0 +1,60 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}用户管理 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">👥 用户管理</h1>
+
+<div class="card">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #faf8f3; border-bottom: 2px solid #f0e6d6;">
+                    <th style="padding: 1rem; text-align: left; color: #5a4a3a; font-weight: 600;">用户名</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">角色</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">注册时间</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">状态</th>
+                    <th style="padding: 1rem; text-align: center; color: #5a4a3a; font-weight: 600;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid #f0e6d6; transition: all 0.3s;"
+                    onmouseover="this.style.background='#faf8f3'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; color: #333; font-weight: 500;">{{ user.username }}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if user.role == 'admin' %}
+                        <span class="badge badge-danger">👑 管理员</span>
+                        {% elif user.role == 'creator' %}
+                        <span class="badge badge-primary">✍️ 创作者</span>
+                        {% else %}
+                        <span class="badge badge-success">📖 读者</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; text-align: center; color: #8b7355; font-size: 0.95rem;">
+                        {{ user.createTime.strftime('%Y-%m-%d %H:%M') if user.createTime else '-' }}
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if user.status == 1 %}
+                        <span class="badge badge-success">✅ 正常</span>
+                        {% else %}
+                        <span class="badge badge-secondary">❌ 已注销</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if user.role != 'admin' and user.status == 1 %}
+                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=user._id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);" onclick="return confirm('确定要删除此用户吗？')">删除</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #bbb;">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}为你推荐 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">为你推荐</h1>
+
+<!-- 兴趣标签展示 -->
+{% if interested_tags or interested_categories %}
+<div class="card">
+    <div class="card-header">📌 你的兴趣偏好</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.5rem;">
+        {% for category in interested_categories %}
+        <span class="badge badge-primary">📚 {{ category }}</span>
+        {% endfor %}
+        {% for tag in interested_tags %}
+        <span class="badge badge-warning">🏷️ {{ tag }}</span>
+        {% endfor %}
+    </div>
+    <p style="color: #8b7355; font-size: 0.9rem; margin-top: 0.5rem;">
+        基于你的阅读和购买历史，我们为你推荐以下小说
+    </p>
+</div>
+{% endif %}
+
+<!-- 猜你喜欢 -->
+<div style="margin-top: 2rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 600; color: #5a4a3a; margin-bottom: 0.5rem; padding-left: 1rem; border-left: 4px solid #c8553d;">
+        🎯 猜你喜欢
+    </h2>
+    <p style="color: #8b7355; font-size: 0.95rem; margin-bottom: 1.5rem; padding-left: 1rem;">
+        💡 根据你的阅读偏好和兴趣标签，为你精选的小说
+    </p>
+    
+    {% if content_based %}
+    <div class="novels-grid">
+        {% for novel in content_based %}
+        <div class="novel-card" onclick="window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">
+            <div class="novel-cover" style="background: linear-gradient(135deg, 
+                {% if loop.index0 % 6 == 0 %}#c8553d 0%, #a0442f 100%
+                {% elif loop.index0 % 6 == 1 %}#8b7355 0%, #6d5c47 100%
+                {% elif loop.index0 % 6 == 2 %}#5f9e6e 0%, #4a7c58 100%
+                {% elif loop.index0 % 6 == 3 %}#d4a259 0%, #b8894a 100%
+                {% elif loop.index0 % 6 == 4 %}#7a92a3 0%, #5d7386 100%
+                {% else %}#9b6b6f 0%, #7d5659 100%{% endif %});">
+                {{ novel.title[:2] }}
+            </div>
+            <div class="novel-info">
+                <div class="novel-title">{{ novel.title }}</div>
+                <div class="novel-meta">
+                    <span class="badge badge-primary">{{ novel.category }}</span>
+                    <span>✍️ {{ novel.author_name }}</span>
+                </div>
+                <div class="novel-meta">
+                    <span>📖 {{ novel.chapters|length }} 章</span>
+                    <span>👁️ {{ novel.readCount }}</span>
+                    {% if novel.price > 0 %}
+                    <span style="color: #c8553d; font-weight: bold;">¥{{ '%.2f'|format(novel.price) }}</span>
+                    {% else %}
+                    <span class="badge badge-success">免费</span>
+                    {% endif %}
+                </div>
+                <div class="novel-intro">{{ novel.intro }}</div>
+                <button class="btn btn-primary" style="width: 100%;">查看详情</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📖</div>
+        <h3>还没有足够的数据</h3>
+        <p>多阅读几本小说，我们就能为你推荐更多好书啦！</p>
+        <a href="{{ url_for('reader_novels') }}" class="btn btn-primary">去小说广场逛逛</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 热门推荐 -->
+<div style="margin-top: 3rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 600; color: #5a4a3a; margin-bottom: 0.5rem; padding-left: 1rem; border-left: 4px solid #d4a259;">
+        🔥 热门推荐
+    </h2>
+    <p style="color: #8b7355; font-size: 0.95rem; margin-bottom: 1.5rem; padding-left: 1rem;">
+        🔥 平台最受欢迎的小说，人气爆棚
+    </p>
+    
+    <div class="novels-grid">
+        {% for novel in hot_recommendations %}
+        <div class="novel-card" onclick="window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">
+            <div class="novel-cover" style="background: linear-gradient(135deg, 
+                {% if loop.index0 % 6 == 0 %}#d4a259 0%, #b8894a 100%
+                {% elif loop.index0 % 6 == 1 %}#c8553d 0%, #a0442f 100%
+                {% elif loop.index0 % 6 == 2 %}#5f9e6e 0%, #4a7c58 100%
+                {% elif loop.index0 % 6 == 3 %}#9b6b6f 0%, #7d5659 100%
+                {% elif loop.index0 % 6 == 4 %}#7a92a3 0%, #5d7386 100%
+                {% else %}#8b7355 0%, #6d5c47 100%{% endif %});">
+                {{ novel.title[:2] }}
+            </div>
+            <div class="novel-info">
+                <div class="novel-title">{{ novel.title }}</div>
+                <div class="novel-meta">
+                    <span class="badge badge-warning">🔥 热门</span>
+                    <span>✍️ {{ novel.author_name }}</span>
+                </div>
+                <div class="novel-meta">
+                    <span>📖 {{ novel.chapters|length }} 章</span>
+                    <span>👁️ {{ novel.readCount }}</span>
+                    {% if novel.price > 0 %}
+                    <span style="color: #c8553d; font-weight: bold;">¥{{ '%.2f'|format(novel.price) }}</span>
+                    {% else %}
+                    <span class="badge badge-success">免费</span>
+                    {% endif %}
+                </div>
+                <div class="novel-intro">{{ novel.intro }}</div>
+                <button class="btn btn-primary" style="width: 100%;">查看详情</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 新书推荐 -->
+<div style="margin-top: 3rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 600; color: #5a4a3a; margin-bottom: 0.5rem; padding-left: 1rem; border-left: 4px solid #5f9e6e;">
+        ✨ 新书推荐
+    </h2>
+    <p style="color: #8b7355; font-size: 0.95rem; margin-bottom: 1.5rem; padding-left: 1rem;">
+        ✨ 最新上架的小说，抢先阅读
+    </p>
+    
+    <div class="novels-grid">
+        {% for novel in new_recommendations %}
+        <div class="novel-card" onclick="window.location.href='{{ url_for('reader_novel_detail', novel_id=novel._id) }}'">
+            <div class="novel-cover" style="background: linear-gradient(135deg, 
+                {% if loop.index0 % 6 == 0 %}#5f9e6e 0%, #4a7c58 100%
+                {% elif loop.index0 % 6 == 1 %}#7a92a3 0%, #5d7386 100%
+                {% elif loop.index0 % 6 == 2 %}#c8553d 0%, #a0442f 100%
+                {% elif loop.index0 % 6 == 3 %}#d4a259 0%, #b8894a 100%
+                {% elif loop.index0 % 6 == 4 %}#8b7355 0%, #6d5c47 100%
+                {% else %}#9b6b6f 0%, #7d5659 100%{% endif %});">
+                {{ novel.title[:2] }}
+            </div>
+            <div class="novel-info">
+                <div class="novel-title">{{ novel.title }}</div>
+                <div class="novel-meta">
+                    <span class="badge badge-success">✨ 新书</span>
+                    <span>✍️ {{ novel.author_name }}</span>
+                </div>
+                <div class="novel-meta">
+                    <span>📖 {{ novel.chapters|length }} 章</span>
+                    <span>👁️ {{ novel.readCount }}</span>
+                    {% if novel.price > 0 %}
+                    <span style="color: #c8553d; font-weight: bold;">¥{{ '%.2f'|format(novel.price) }}</span>
+                    {% else %}
+                    <span class="badge badge-success">免费</span>
+                    {% endif %}
+                </div>
+                <div class="novel-intro">{{ novel.intro }}</div>
+                <button class="btn btn-primary" style="width: 100%;">查看详情</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

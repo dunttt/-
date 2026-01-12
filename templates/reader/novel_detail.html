@@ -1,0 +1,327 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}{{ novel.title }} - 小说详情{% endblock %}
+
+{% block content %}
+<!-- 小说详情卡片 -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2rem;">
+        <!-- 小说封面 -->
+        <div class="novel-cover" style="width: 200px; height: 280px; background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%); font-size: 3rem;">
+            {{ novel.title[:2] }}
+        </div>
+        
+        <!-- 小说信息 -->
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 700; color: #5a4a3a; margin-bottom: 1rem;">
+                {{ novel.title }}
+            </h1>
+            
+            <!-- 标签 -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <span class="badge badge-primary">{{ novel.category }}</span>
+                {% for tag in novel.tags %}
+                <span class="badge badge-warning">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            
+            <!-- 详细信息 -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; color: #8b7355;">
+                <div>✍️ 作者：<strong>{{ novel.author_name }}</strong></div>
+                <div>📖 章节：<strong>{{ novel.chapters|length }} 章</strong></div>
+                <div>👁️ 阅读量：<strong>{{ novel.readCount }}</strong></div>
+                <div>📊 销量：<strong>{{ novel.saleCount }}</strong></div>
+            </div>
+            
+            <!-- 价格 -->
+            <div style="margin-bottom: 1.5rem;">
+                {% if novel.price > 0 %}
+                <div style="font-size: 2rem; color: #c8553d; font-weight: 700;">
+                    ¥{{ '%.2f'|format(novel.price) }}
+                </div>
+                {% else %}
+                <div style="font-size: 1.5rem; color: #5f9e6e; font-weight: 600;">
+                    📖 免费阅读
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- 操作按钮 -->
+            {% if purchased %}
+            <a href="{{ url_for('reader_read_chapter', novel_id=novel._id, chapter_id=novel.chapters[0].chapterId) }}" class="btn btn-success" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                📖 开始阅读
+            </a>
+            {% elif novel.price == 0 %}
+            <a href="{{ url_for('reader_read_chapter', novel_id=novel._id, chapter_id=novel.chapters[0].chapterId) }}" class="btn btn-success" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                📖 开始阅读
+            </a>
+            {% else %}
+            <button class="btn btn-warning" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="purchaseNovel('{{ novel._id }}')">
+                💰 立即购买
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 简介 -->
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #f0e6d6;">
+        <h3 style="font-size: 1.3rem; font-weight: 600; color: #5a4a3a; margin-bottom: 1rem;">
+            📜 简介
+        </h3>
+        <p style="line-height: 2; color: #666; font-size: 1rem; text-indent: 2em;">
+            {{ novel.intro }}
+        </p>
+    </div>
+</div>
+
+<!-- 章节列表 -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header" style="font-size: 1.2rem; font-weight: 600;">
+        📚 章节列表
+    </div>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        {% for chapter in novel.chapters %}
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #f0e6d6; transition: all 0.3s; {% if not loop.last %}{% else %}border-bottom: none;{% endif %}"
+            onmouseover="this.style.background='#faf8f3'"
+            onmouseout="this.style.background='transparent'">
+            <div>
+                <strong style="color: #5a4a3a; font-size: 1rem;">{{ chapter.title }}</strong>
+                {% if chapter.isFree %}
+                <span class="badge badge-success" style="margin-left: 0.75rem;">免费</span>
+                {% else %}
+                <span class="badge badge-warning" style="margin-left: 0.75rem;">付费</span>
+                {% endif %}
+            </div>
+            <div>
+                {% if chapter.isFree or purchased or novel.price == 0 %}
+                <a href="{{ url_for('reader_read_chapter', novel_id=novel._id, chapter_id=chapter.chapterId) }}" class="btn btn-primary" style="padding: 0.6rem 1.5rem;">
+                    阅读
+                </a>
+                {% else %}
+                <button class="btn btn-secondary" disabled style="padding: 0.6rem 1.5rem; opacity: 0.5; cursor: not-allowed;">
+                    需购买
+                </button>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- 评论区域 -->
+<div class="card">
+    <div class="card-header" style="font-size: 1.2rem; font-weight: 600;">
+        💬 读者评论（{{ novel.comments|length }} 条）
+    </div>
+    
+    <!-- 发表评论表单 -->
+    <div style="padding: 1.5rem; background: #faf8f3; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h4 style="font-size: 1.1rem; color: #5a4a3a; margin-bottom: 1rem;">✍️ 发表评论</h4>
+        <form id="commentForm">
+            <div class="form-group">
+                <textarea id="commentContent" class="form-control" placeholder="写下你的想法..." required style="min-height: 100px; border: 2px solid #f0e6d6; border-radius: 8px; padding: 1rem;"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                发表评论
+            </button>
+        </form>
+    </div>
+    
+    <!-- 评论列表 -->
+    <div id="commentsList">
+        {% if novel.comments %}
+            {% for comment in novel.comments %}
+            <div style="padding: 1.5rem; border-bottom: 1px solid #f0e6d6; {% if loop.last %}border-bottom: none;{% endif %}" data-index="{{ loop.index0 }}">
+                <!-- 评论头部 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="color: #5a4a3a; font-weight: 600;">
+                        👤 {{ comment.username if comment.username else '匿名用户' }}
+                    </span>
+                    <span style="color: #8b7355; font-size: 0.9rem;">
+                        {{ comment.createTime.strftime('%Y-%m-%d %H:%M') if comment.createTime else '-' }}
+                    </span>
+                </div>
+                
+                <!-- 评论内容 -->
+                <div style="color: #666; line-height: 1.8; margin-bottom: 1rem;">
+                    {{ comment.content }}
+                </div>
+                
+                <!-- 评论操作 -->
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.9rem;" onclick="showReplyForm({{ loop.index0 }})">
+                        💬 回复
+                    </button>
+                    {% if comment.userId and session.user_id and comment.userId|string == session.user_id %}
+                    <button class="btn btn-danger" style="padding: 0.4rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);" onclick="deleteComment({{ loop.index0 }})">
+                        🗑️ 删除
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- 回复表单（默认隐藏） -->
+                <div id="replyForm{{ loop.index0 }}" style="display: none; margin-top: 1rem; padding: 1rem; background: #faf8f3; border-radius: 8px;">
+                    <form onsubmit="submitReply(event, {{ loop.index0 }})">
+                        <div class="form-group">
+                            <textarea class="form-control" placeholder="写下你的回复..." required style="min-height: 80px; border: 2px solid #f0e6d6; border-radius: 8px; padding: 1rem;"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem;">
+                            <button type="submit" class="btn btn-success" style="padding: 0.5rem 1rem;">提交回复</button>
+                            <button type="button" class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="hideReplyForm({{ loop.index0 }})">取消</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 回复列表 -->
+                {% if comment.replies %}
+                    {% for reply in comment.replies %}
+                    <div style="margin-left: 2rem; margin-top: 1rem; padding: 1rem; background: #f7f3ed; border-left: 3px solid #d4a259; border-radius: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="color: #5a4a3a; font-weight: 600; font-size: 0.95rem;">
+                                👤 {{ reply.username if reply.username else '匿名用户' }}
+                            </span>
+                            <span style="color: #8b7355; font-size: 0.85rem;">
+                                {{ reply.createTime.strftime('%Y-%m-%d %H:%M') if reply.createTime else '-' }}
+                            </span>
+                        </div>
+                        <div style="color: #666; line-height: 1.6; font-size: 0.95rem;">
+                            {{ reply.content }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="padding: 3rem;">
+                <div class="icon">💬</div>
+                <h3>暂无评论</h3>
+                <p>快来抢沙发吧！</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function purchaseNovel(novelId) {
+    if (!confirm('确定要购买这部小说吗？')) return;
+    
+    fetch('/reader/novels/' + novelId + '/purchase', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('购买成功！');
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        alert('购买失败，请重试');
+        console.error(error);
+    });
+}
+
+// 提交评论
+document.getElementById('commentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const content = document.getElementById('commentContent').value;
+    const novelId = '{{ novel._id }}';
+    
+    const formData = new FormData();
+    formData.append('content', content);
+    
+    fetch('/reader/novels/' + novelId + '/comment', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('评论成功！');
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        alert('评论失败，请重试');
+        console.error(error);
+    });
+});
+
+// 显示回复表单
+function showReplyForm(index) {
+    const form = document.getElementById('replyForm' + index);
+    form.style.display = 'block';
+}
+
+// 隐藏回复表单
+function hideReplyForm(index) {
+    const form = document.getElementById('replyForm' + index);
+    form.style.display = 'none';
+}
+
+// 提交回复
+function submitReply(event, commentIndex) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const content = form.querySelector('textarea').value;
+    const novelId = '{{ novel._id }}';
+    
+    const formData = new FormData();
+    formData.append('content', content);
+    
+    fetch('/reader/novels/' + novelId + '/comment/' + commentIndex + '/reply', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('回复成功！');
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        alert('回复失败，请重试');
+        console.error(error);
+    });
+}
+
+// 删除评论
+function deleteComment(index) {
+    if (!confirm('确定要删除这条评论吗？')) return;
+    
+    const novelId = '{{ novel._id }}';
+    
+    fetch('/reader/novels/' + novelId + '/comment/' + index + '/delete', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('删除成功！');
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        alert('删除失败，请重试');
+        console.error(error);
+    });
+}
+</script>
+{% endblock %}

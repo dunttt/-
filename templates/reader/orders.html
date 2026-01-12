@@ -1,0 +1,102 @@
+{% extends "base-ancient.html" %}
+
+{% block title %}我的订单 - 悦读坊{% endblock %}
+
+{% block content %}
+<h1 class="page-title" style="text-align: left;">我的订单</h1>
+
+<!-- 统计信息 -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-label">总订单数</div>
+        <div class="stat-value">{{ orders|length }}</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #5f9e6e 0%, #4a7c58 100%);">
+        <div class="stat-label">已支付</div>
+        <div class="stat-value">{{ orders|selectattr('status', 'equalto', 'paid')|list|length }}</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #d4a259 0%, #b8894a 100%);">
+        <div class="stat-label">待支付</div>
+        <div class="stat-value">{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+    </div>
+</div>
+
+<!-- 订单列表 -->
+{% if orders %}
+<div style="display: grid; gap: 1.5rem;">
+    {% for order in orders %}
+    <div class="card" style="transition: all 0.3s;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <div>
+                <div style="font-size: 0.85rem; color: #8b7355;">
+                    订单号：{{ order.orderId }}
+                </div>
+                <div style="font-size: 0.85rem; color: #8b7355; margin-top: 0.25rem;">
+                    下单时间：{{ order.createTime.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+            </div>
+            {% if order.status == 'paid' %}
+            <span class="badge badge-success">✓ 已支付</span>
+            {% elif order.status == 'pending' %}
+            <span class="badge badge-warning">⏳ 待支付</span>
+            {% else %}
+            <span class="badge badge-danger">已取消</span>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 1.5rem; align-items: center; padding: 1rem; background: #faf8f3; border-radius: 8px;">
+            <!-- 小说封面 -->
+            <div style="width: 80px; height: 100px; background: linear-gradient(135deg, #c8553d 0%, #a0442f 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 700; flex-shrink: 0;">
+                {{ order.novel_info.title[:2] if order.novel_info else '?' }}
+            </div>
+
+            <!-- 小说信息 -->
+            <div style="flex: 1;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+                    {{ order.novel_info.title if order.novel_info else '小说已删除' }}
+                </h3>
+                {% if order.novel_info %}
+                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #888; margin-bottom: 0.5rem;">
+                    <span>📚 {{ order.novel_info.category }}</span>
+                    <span>✍️ {{ order.novel_info.author_name }}</span>
+                    <span>📖 {{ order.novel_info.chapters|length }} 章</span>
+                </div>
+                {% endif %}
+                <div style="font-size: 1.5rem; font-weight: 700; color: #c8553d;">
+                    ¥{{ '%.2f'|format(order.amount) }}
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% if order.status == 'pending' %}
+                <form method="POST" action="{{ url_for('reader_pay_order', order_id=order._id) }}" style="margin: 0;">
+                    <button type="submit" class="btn btn-primary" style="width: 120px;">立即支付</button>
+                </form>
+                {% elif order.status == 'paid' and order.novel_info %}
+                <a href="{{ url_for('reader_novel_detail', novel_id=order.novel_info._id) }}" class="btn btn-success" style="width: 120px; text-align: center; text-decoration: none;">开始阅读</a>
+                {% endif %}
+                
+                {% if order.novel_info %}
+                <a href="{{ url_for('reader_novel_detail', novel_id=order.novel_info._id) }}" class="btn btn-secondary" style="width: 120px; text-align: center; text-decoration: none;">查看详情</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if order.status == 'paid' and order.payTime %}
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0e6d6; font-size: 0.85rem; color: #8b7355;">
+            支付时间：{{ order.payTime.strftime('%Y-%m-%d %H:%M:%S') }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="icon">📦</div>
+    <h3>还没有订单</h3>
+    <p>去小说广场看看，发现喜欢的作品吧</p>
+    <a href="{{ url_for('reader_novels') }}" class="btn btn-primary">浏览小说</a>
+</div>
+{% endif %}
+{% endblock %}
